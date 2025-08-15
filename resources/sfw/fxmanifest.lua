@@ -50,5 +50,6 @@ client_scripts {
   'client/40_ui.lua',
   'client/60_wildlife.lua',
   'client/70_env.lua',
-  'client/90_admin.lua'
+  'client/90_admin.lua',
+  'client/95_weap_debug.lua'
 }
