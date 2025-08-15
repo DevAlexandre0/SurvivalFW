@@ -12,6 +12,8 @@
 
   const viewApp = $('#view-app');
   const viewId = $('#view-id');
+  const viewInv = $('#view-inv');
+  const invGrid = $('#inv-grid');
   const hud = $('#hud');
   const hudVal = {
     hp: $('#hud-hp-value'),
@@ -28,8 +30,27 @@
   function setView(name){
     viewApp.classList.add('hidden');
     viewId.classList.add('hidden');
+    viewInv?.classList.add('hidden');
     if(name === 'app'){ viewApp.classList.remove('hidden'); }
     if(name === 'id'){ viewId.classList.remove('hidden'); }
+    if(name === 'inv'){ viewInv?.classList.remove('hidden'); }
+  }
+
+  function renderInv(c){
+    if(!invGrid) return;
+    invGrid.innerHTML = '';
+    const slots = (c && c.slots) || [];
+    for(let i=0;i<slots.length;i++){
+      const slot = slots[i];
+      const div = document.createElement('div');
+      div.className = 'inv-slot';
+      if(slot){
+        const label = slot.label || slot.name || '';
+        const count = slot.count !== undefined ? ` (${slot.count})` : '';
+        div.textContent = `${label}${count}`;
+      }
+      invGrid.appendChild(div);
+    }
   }
 
   window.addEventListener('message', (e)=>{
@@ -38,6 +59,9 @@
     if(d.type === 'app:close'){ setView(null); }
     if(d.type === 'id:open'){ setView('id'); }
     if(d.type === 'id:close'){ setView(null); }
+    if(d.type === 'inv:open'){ setView('inv'); renderInv(d.payload||{}); }
+    if(d.type === 'inv:update'){ renderInv(d.payload||{}); }
+    if(d.type === 'inv:close'){ setView(null); }
 
     if(d.type === 'vis'){
       if(d.show){ hud?.classList.remove('hidden'); }
