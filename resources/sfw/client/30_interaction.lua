@@ -284,7 +284,6 @@ CreateThread(function()
   end
 end)
 
-return SRC
 RegisterNetEvent('fw:nui:open', function(packet)
   if not packet or not packet.type then return end
   SendNUIMessage({ type = packet.type, payload = packet.payload })
@@ -295,3 +294,5 @@ RegisterNetEvent('fw:nui:open', function(packet)
     SetNuiFocus(false, false)
   end
 end)
+
+return SRC
