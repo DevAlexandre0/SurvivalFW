@@ -19,6 +19,9 @@ shared_scripts {
 server_scripts {
   '@oxmysql/lib/MySQL.lua',
   'server/00_core_boot.lua',
+  'server/00_db_collation.lua',
+  'server/00_db_wrappers.lua',
+  'server/00_acl.lua',
   'server/00_shims.lua',
   'server/00_fw_db_boot.lua',
   'server/01_db_players.lua',
