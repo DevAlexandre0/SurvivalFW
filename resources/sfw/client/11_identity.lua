@@ -10,6 +10,14 @@ end)
 
 RegisterNUICallback('id:submit', function(data, cb)
   TriggerServerEvent('fw:id:submit', data or {})
+  SetNuiFocus(false, false)
+  SendNUIMessage({ type='id:close' })
+  if cb then cb({ ok = true }) end
+end)
+
+RegisterNUICallback('id:cancel', function(data, cb)
+  SetNuiFocus(false, false)
+  SendNUIMessage({ type='id:close' })
   if cb then cb({ ok = true }) end
 end)
 

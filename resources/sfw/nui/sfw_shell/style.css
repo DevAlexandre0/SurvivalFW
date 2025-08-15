@@ -14,3 +14,12 @@ label { display:flex; flex-direction:column; font-size: 14px; }
 input, select, button { background: #001800; color:#bfffbf; border:1px solid #0f0; padding:6px; }
 button { cursor:pointer; }
 button:hover { background:#002800; }
+
+#view-id, #view-app {
+  justify-content:flex-end;
+  background: linear-gradient(to right, rgba(0,0,0,0) 0 60%, rgba(0,0,0,.35) 60% 100%);
+}
+
+#view-id .card, #view-app .card { margin-right:5%; }
+#view-id .card { width: 600px; }
+#view-id .actions { margin-top:16px; display:flex; justify-content:flex-end; gap:8px; }

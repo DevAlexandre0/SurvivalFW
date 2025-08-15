@@ -10,12 +10,41 @@
 <body>
   <div id="hud" class="panel">HUD...</div>
 
-  <!-- Appearance (hair only, clothing locked) -->
+  <!-- Identity form -->
+  <div id="view-id" class="overlay hidden">
+    <div class="card">
+      <h2>Identity</h2>
+      <form id="id_form">
+        <div class="grid">
+          <label>First Name: <input id="id_first" name="first_name" type="text" maxlength="64"></label>
+          <label>Last Name: <input id="id_last" name="last_name" type="text" maxlength="64"></label>
+          <label>Date of Birth: <input id="id_dob" name="dob" type="date"></label>
+          <label>Sex:
+            <select id="id_sex" name="sex">
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+            </select>
+          </label>
+          <label>Height (cm): <input id="id_height" name="height_cm" type="number" min="120" max="220" value="175"></label>
+          <label>Blood Type: <input id="id_blood" name="blood_type" type="text" maxlength="8"></label>
+          <label>Nationality: <input id="id_nation" name="nationality" type="text" maxlength="64"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" id="id_submit">Submit</button>
+          <button type="button" id="id_cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Appearance (face, skin, hair; clothing locked) -->
   <div id="view-app" class="overlay hidden">
     <div class="card">
-      <h2>Appearance — Hair</h2>
-      <p style="margin-top:-6px;color:#9f9;">Clothing is locked to prisoner uniform. Customize hair below.</p>
+      <h2>Appearance — Face & Hair</h2>
+      <p style="margin-top:-6px;color:#9f9;">Clothing is locked to prisoner uniform. Customize head, skin, and hair below.</p>
       <div class="grid">
+        <label>Head drawable: <input id="ap_head" type="number" min="0" max="45" value="0"></label>
+        <label>Skin tone: <input id="ap_skin" type="number" min="0" max="45" value="0"></label>
         <label>Hair drawable: <input id="ap_hair" type="number" min="0" max="80" value="0"></label>
         <label>Color 1: <input id="ap_c1" type="number" min="0" max="63" value="0"></label>
         <label>Color 2: <input id="ap_c2" type="number" min="0" max="63" value="0"></label>
