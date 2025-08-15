@@ -213,7 +213,7 @@ FW.DB.Contract = {
   biome_polygons = { table="biome_polygons", cols={"id","biome_id","polygon","blacklist"}, pk="id" },
   wildlife_rules = { table="wildlife_rules", cols={"rule_id","biome_id","species","density","night_mult","rain_mult","group_min","group_max","no_spawn_radius","meta"}, pk="rule_id" },
 }
-return FW.DB.Contract
+
 -- Hardening: guard every DB call and avoid iterating nil
 local function q(sql, params)
   local ok, res = pcall(function() return MySQL.query.await(sql, params or {}) end)
@@ -285,3 +285,5 @@ function FW.ACL.StashCanWrite(stashId, src)
   local role = FW.DB.GetRole(pid)
   return (role == 'admin')
 end
+
+return FW.DB.Contract
