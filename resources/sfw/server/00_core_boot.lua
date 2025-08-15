@@ -1,5 +1,7 @@
 -- SFW 00_core_boot (generated minimal)
 FW = FW or {}; FW.DB = FW.DB or {}; FW.DB.players = FW.DB.players or {}
+
+-- Determine a player's primary identifier, preferring `license:`
 if type(FW.GetIdentifier) ~= 'function' then
   function FW.GetIdentifier(src)
     local ids = GetPlayerIdentifiers(src) or {}
@@ -7,12 +9,19 @@ if type(FW.GetIdentifier) ~= 'function' then
     return ids[1]
   end
 end
+
+-- Alias fetchPlayer -> get() or fallback query for legacy scripts
 if type(FW.DB.players.fetchPlayer) ~= 'function' then
-  function FW.DB.players.fetchPlayer(identifier)
-    if not identifier then return nil end
-    return MySQL.single.await("SELECT * FROM players WHERE BINARY identifier=BINARY ? LIMIT 1", { identifier })
+  if type(FW.DB.players.get) == 'function' then
+    FW.DB.players.fetchPlayer = FW.DB.players.get -- alias to existing get()
+  else
+    function FW.DB.players.fetchPlayer(identifier)
+      if not identifier then return nil end
+      return MySQL.single.await("SELECT * FROM players WHERE BINARY identifier=BINARY ? LIMIT 1", { identifier })
+    end
   end
 end
+
 if type(FW.DB.players.updatePlayer) ~= 'function' then
   function FW.DB.players.updatePlayer(identifier, patch)
     if not identifier or type(patch) ~= 'table' then return 0 end
@@ -36,17 +45,6 @@ if type(FW.DB.players.updatePlayer) ~= 'function' then
   end
 end
 print("^2[SFW] 00_core_boot (generated) loaded^7")
-FW = FW or {}
-FW.DB = FW.DB or {}
-
-function FW.GetIdentifier(src)
-  if src == 0 or src == nil then return nil end
-  for _, id in ipairs(GetPlayerIdentifiers(src)) do
-    if id:sub(1,8) == "license:" then return id end
-  end
-  return nil
-end
-
 FW.Surv = FW.Surv or {}
 
 function FW.Surv.GetStatusByIdent(ident)
@@ -83,19 +81,4 @@ if not FW.Inventory then
 end
 if not FW.GetStatus and FW.Surv and FW.Surv.GetStatus then
   FW.GetStatus = FW.Surv.GetStatus
-end
-
--- DB namespace safety
-FW.DB = FW.DB or {}
-FW.DB.players = FW.DB.players or {}
-
--- Alias fetchPlayer -> get (or fallback query), for old scripts like med_bleed.lua
-if type(FW.DB.players.fetchPlayer) ~= 'function' then
-  if type(FW.DB.players.get) == 'function' then
-    FW.DB.players.fetchPlayer = FW.DB.players.get
-  else
-    FW.DB.players.fetchPlayer = function(identifier)
-      return MySQL.single.await("SELECT * FROM players WHERE BINARY identifier=BINARY ? LIMIT 1", { identifier })
-    end
-  end
 end
