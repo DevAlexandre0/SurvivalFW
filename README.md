@@ -82,4 +82,6 @@ Author: SFW Team
 
 Version: 1.3.1
 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
 Contributions should follow existing module structure and Lua coding conventions. Use built-in rate limiting (FW.RL.Check) for networked operations and maintain database contracts for new tables or queries.
