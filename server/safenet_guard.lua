@@ -3,7 +3,6 @@ FW.SafeGate = {}
 local keys = {
   ["evt:weap_shot"] = { rate=10, burst=15 },
   ["evt:veh_impact"] = { rate=2, burst=5 },
-  ["hud:pull"] = { rate=2, burst=4 },
   ["stash:open"] = { rate=1, burst=2 },
   ["stash:move"] = { rate=2, burst=5 },
   ["craft:do"] = { rate=1, burst=2 },
