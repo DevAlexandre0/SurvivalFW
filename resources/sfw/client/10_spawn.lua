@@ -47,6 +47,3 @@ CreateThread(function()
     Wait(30000)
   end
 end)
-AddEventHandler('playerSpawned', function()
-  TriggerServerEvent('fw:id:check')
-end)
