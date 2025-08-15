@@ -1,112 +1,7 @@
 FW = FW or {}
 FW.DB = FW.DB or {}
-local C = FW.DB.Contract
-local function tx(ident, action, item_key, qty, fromc, froms, toc, tos, stack_id, ctx)
-  local q = "INSERT INTO %s(identifier,action,item_key,qty,from_cont,from_slot,to_cont,to_slot," .. "stack_id,context) VALUES (?,?,?,?,?,?,?,?,?,?)"
-	return MySQL.insert.await(q:format(C.inv_tx.table), {ident, action, item_key, qty, fromc, froms, toc, tos, stack_id, ctx and json.encode(ctx) or nil, })
-end
-RegisterNetEvent("fw:inv:moveStrict", function(payload)
-	local src = source
-	if not (FW.RL and FW.RL.Check(src, "inv_move", 500)) then
-		return
-	end
-	if type(payload) ~= "table" then
-		return
-	end
-	local ident = FW.GetIdentifier and FW.GetIdentifier(src)
-	if not ident then
-		return
-	end
-	local fromc, froms = tonumber(payload.from_container), tonumber(payload.from_slot)
-	local toc, tos = tonumber(payload.to_container), tonumber(payload.to_slot)
-	local amount = tonumber(payload.amount or 0)
-	if not fromc or not froms or not toc or not tos then
-		return
-	end
-	local from = MySQL.single.await(
-		("SELECT * FROM %s WHERE container_id=? AND slot_index=?"):format(C.stacks.table),
-		{ fromc, froms }
-	)
-	if not from then
-		TriggerClientEvent("fw:inv:error", src, "no_source_stack")
-		return
-	end
-	local to = MySQL.single.await(
-		("SELECT * FROM %s WHERE container_id=? AND slot_index=?"):format(C.stacks.table),
-		{ toc, tos }
-	)
-	local toTag = MySQL.single.await(
-		("SELECT tag FROM %s WHERE container_id=? AND slot_index=?"):format(C.container_slots.table),
-		{ toc, tos }
-	)
-	if toTag and toTag.tag then
-		local ok = true
-		local t = json.decode(toTag.tag)
-		if t and t.only then
-			ok = false
-			local tagsRow =
-				MySQL.single.await(("SELECT tags FROM %s WHERE item_key=?"):format(C.items.table), { from.item_key })
-			local ittags = (tagsRow and tagsRow.tags) and json.decode(tagsRow.tags) or {}
-			for _, g in ipairs(ittags) do
-				for _, need in ipairs(t.only) do
-					if g == need then
-						ok = true
-					end
-				end
-			end
-		end
-		if not ok then
-			TriggerClientEvent("fw:inv:error", src, "slot_forbidden")
-			return
-		end
-	end
-	if to and to.item_key == from.item_key then
-		local newQty = (tonumber(to.quantity) or 0) + (amount > 0 and amount or from.quantity)
-		MySQL.update.await(
-			("UPDATE %s SET quantity=? WHERE stack_id=?"):format(C.stacks.table),
-			{ newQty, to.stack_id }
-		)
-		if amount > 0 and amount < from.quantity then
-			MySQL.update.await(
-				("UPDATE %s SET quantity=quantity-? WHERE stack_id=?"):format(C.stacks.table),
-				{ amount, from.stack_id }
-			)
-		else
-			MySQL.query.await(("DELETE FROM %s WHERE stack_id=?"):format(C.stacks.table), { from.stack_id })
-		end
-		tx(
-			ident,
-			"MERGE",
-			from.item_key,
-			amount > 0 and amount or from.quantity,
-			fromc,
-			froms,
-			toc,
-			tos,
-			to.stack_id,
-			{}
-		)
-	else
-		MySQL.update.await(
-			("UPDATE %s SET container_id=?, slot_index=? WHERE stack_id=?"):format(C.stacks.table),
-			{ toc, tos, from.stack_id }
-		)
-		tx(
-			ident,
-			"MOVE",
-			from.item_key,
-			amount > 0 and amount or from.quantity,
-			fromc,
-			froms,
-			toc,
-			tos,
-			from.stack_id,
-			{}
-		)
-	end
-	TriggerClientEvent("fw:inv:refresh", src)
-end)
-FW = FW or {}; FW.Surv = FW.Surv or {}
+FW.Surv = FW.Surv or {}
+FW.Inv = FW.Inv or {}
 local function clamp(v,a,b) if v<a then return a elseif v>b then return b else return v end end
 FW.Surv.Inventory = FW.Surv.Inventory or {}
 
@@ -225,19 +120,6 @@ RegisterNetEvent('fw:inv:moveStrict', function(p)
   TriggerClientEvent('fw:inv:update', src, { from={container=fromC}, to={container=toC} })
 end)
 
--- Item-use router
-FW.Inv = FW.Inv or {}
-FW.Inv.Use = function(ident, item_key, qty, meta)
-  qty = math.max(1, tonumber(qty or 1))
-  -- consume stack(s)
-  local ok = exports.oxmysql:update("UPDATE stacks SET quantity=quantity-? WHERE stack_id IN (SELECT stack_id FROM stacks WHERE item_key=? AND container_id IN (SELECT container_id FROM containers WHERE owner_ident=? AND type='PLAYER') ORDER BY quantity DESC LIMIT 1)", { qty, item_key, ident })
-  if not ok then return false end
-  TriggerEvent(('fw:item:use:%s'):format(item_key), ident, qty, meta or {})
-  return true
-end
-FW = FW or {}
-FW.Inv = FW.Inv or {}
-
 local function decode(jsonStr)
   local ok, res = pcall(json.decode, jsonStr or '{}')
   if ok and type(res) == 'table' then return res else return {} end
@@ -277,8 +159,15 @@ function FW.Inv.CheckSlot(slotId, item)
 end
 
 function FW.Inv.Use(ident, item_key, qty, meta)
-  qty = qty or 1
+  qty = math.max(1, tonumber(qty or 1))
   meta = meta or {}
+
+  local consumed = exports.oxmysql:update(
+    "UPDATE stacks SET quantity=quantity-? WHERE stack_id IN (SELECT stack_id FROM stacks WHERE item_key=? AND container_id IN (SELECT container_id FROM containers WHERE owner_ident=? AND type='PLAYER') ORDER BY quantity DESC LIMIT 1)",
+    { qty, item_key, ident }
+  )
+  if not consumed then return false end
+
   TriggerEvent('fw:item:use:' .. item_key, ident, qty, meta)
   local item = FW.Items and FW.Items[item_key]
   if item and item.tags then
@@ -286,16 +175,19 @@ function FW.Inv.Use(ident, item_key, qty, meta)
       TriggerEvent('fw:item:use:' .. tag .. '/*', ident, item_key, qty, meta)
     end
   end
+
   if meta.stack_id then
-    local row = MySQL.single.await('SELECT durability FROM stacks WHERE id=?', {meta.stack_id}) or {}
+    local row = MySQL.single.await('SELECT durability FROM stacks WHERE stack_id=?', {meta.stack_id}) or {}
     local cur = tonumber(row.durability or 100) - qty
-    MySQL.update.await('UPDATE stacks SET durability=? WHERE id=?', {cur, meta.stack_id})
+    MySQL.update.await('UPDATE stacks SET durability=? WHERE stack_id=?', {cur, meta.stack_id})
     if cur <= 0 then
-      MySQL.update.await('DELETE FROM stacks WHERE id=?', {meta.stack_id})
+      MySQL.update.await('DELETE FROM stacks WHERE stack_id=?', {meta.stack_id})
       TriggerClientEvent('fw:item:broken', ident, item_key)
     end
   end
+
   if FW.Metrics then FW.Metrics.Inc('sfw_inv_move_total', {action='use'}) end
+  return true
 end
 
 exports('Use', function(...) FW.Inv.Use(...) end)
