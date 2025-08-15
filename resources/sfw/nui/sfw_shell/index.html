@@ -37,12 +37,14 @@
     </div>
   </div>
 
-  <!-- Appearance (hair only, clothing locked) -->
+
   <div id="view-app" class="overlay hidden">
     <div class="card">
-      <h2>Appearance — Hair</h2>
-      <p style="margin-top:-6px;color:#9f9;">Clothing is locked to prisoner uniform. Customize hair below.</p>
+      <h2>Appearance — Face & Hair</h2>
+      <p style="margin-top:-6px;color:#9f9;">Clothing is locked to prisoner uniform. Customize head, skin, and hair below.</p>
       <div class="grid">
+        <label>Head drawable: <input id="ap_head" type="number" min="0" max="45" value="0"></label>
+        <label>Skin tone: <input id="ap_skin" type="number" min="0" max="45" value="0"></label>
         <label>Hair drawable: <input id="ap_hair" type="number" min="0" max="80" value="0"></label>
         <label>Color 1: <input id="ap_c1" type="number" min="0" max="63" value="0"></label>
         <label>Color 2: <input id="ap_c2" type="number" min="0" max="63" value="0"></label>

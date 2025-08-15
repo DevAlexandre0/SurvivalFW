@@ -46,6 +46,8 @@
 
   $('#ap_apply')?.addEventListener('click', ()=>{
     post('app:apply', {
+      head: parseInt($('#ap_head')?.value||'0',10) || 0,
+      skin: parseInt($('#ap_skin')?.value||'0',10) || 0,
       hair: parseInt($('#ap_hair')?.value||'0',10) || 0,
       color1: parseInt($('#ap_c1')?.value||'0',10) || 0,
       color2: parseInt($('#ap_c2')?.value||'0',10) || 0

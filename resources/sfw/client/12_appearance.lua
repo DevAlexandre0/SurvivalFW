@@ -22,12 +22,15 @@ RegisterNetEvent('fw:outfit:prison:apply', function(gender)
   applyPrisonOutfit(gender or 'M')
 end)
 
--- BASIC hair-only appearance (locked clothing)
+-- BASIC face & hair appearance (locked clothing)
 RegisterNUICallback('app:apply', function(data, cb)
   local ped = PlayerPedId()
+  local head = tonumber(data and data.head or 0) or 0
+  local skin = tonumber(data and data.skin or 0) or 0
   local hair = tonumber(data and data.hair or 0) or 0
   local col1 = tonumber(data and data.color1 or 0) or 0
   local col2 = tonumber(data and data.color2 or 0) or 0
+  SetPedComponentVariation(ped, 0, head, skin, 0) -- face/skin
   SetPedComponentVariation(ped, 2, hair, 0, 0)  -- hair style
   SetPedHairColor(ped, col1, col2)
   if cb then cb({ ok = true }) end
