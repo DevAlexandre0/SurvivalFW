@@ -16,9 +16,6 @@ resources/
 spec/ -- Busted unit tests
 sql/ -- database migration files
 
-markdown
-คัดลอก
-
 ---
 
 ## ✨ Features
