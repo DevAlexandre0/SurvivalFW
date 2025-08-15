@@ -11,15 +11,37 @@
   }
 
   const viewApp = $('#view-app');
+  const viewId = $('#view-id');
   function setView(name){
     viewApp.classList.add('hidden');
+    viewId.classList.add('hidden');
     if(name === 'app'){ viewApp.classList.remove('hidden'); }
+    if(name === 'id'){ viewId.classList.remove('hidden'); }
   }
 
   window.addEventListener('message', (e)=>{
     const d = e.data || {};
     if(d.type === 'app:open'){ setView('app'); }
     if(d.type === 'app:close'){ setView(null); }
+    if(d.type === 'id:open'){ setView('id'); }
+    if(d.type === 'id:close'){ setView(null); }
+  });
+
+  $('#id_form')?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    post('id:submit', {
+      first_name: $('#id_first')?.value || '',
+      last_name: $('#id_last')?.value || '',
+      dob: $('#id_dob')?.value || '',
+      sex: $('#id_sex')?.value || '',
+      height_cm: parseInt($('#id_height')?.value||'0',10) || 0,
+      blood_type: $('#id_blood')?.value || '',
+      nationality: $('#id_nation')?.value || ''
+    });
+  });
+
+  $('#id_cancel')?.addEventListener('click', ()=>{
+    post('id:cancel', {});
   });
 
   $('#ap_apply')?.addEventListener('click', ()=>{
