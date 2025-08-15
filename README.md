@@ -6,15 +6,15 @@ A modular survival framework for FiveM servers (GTA V). SurvivalFW delivers su
 
 ## 📁 Repository Layout
 
-resources/
-└─ sfw/
-├─ client/ -- client-side Lua scripts
-├─ server/ -- server-side Lua scripts
-├─ shared/ -- configuration + utility modules
-├─ nui/sfw_shell/ -- minimal HTML/CSS/JS UI shell
-└─ fxmanifest.lua
-spec/ -- Busted unit tests
-sql/ -- database migration files
+- resources/
+- └─ sfw/
+- ├─ client/ -- client-side Lua scripts
+- ├─ server/ -- server-side Lua scripts
+- ├─ shared/ -- configuration + utility modules
+- ├─ nui/sfw_shell/ -- minimal HTML/CSS/JS UI shell
+- └─ fxmanifest.lua
+- spec/ -- Busted unit tests
+- sql/ -- database migration files
 
 ---
 
@@ -54,29 +54,21 @@ Edit shared/10_config.lua to tweak clothing stats, items, crafting recipes, inte
 Customize HTML/CSS/JS assets under nui/sfw_shell if desired.
 
 🕹️ Usage
-Player Join Flow
+# Player Join Flow
+- Identity registration → hair/appearance setup → spawn.
 
-Identity registration → hair/appearance setup → spawn.
+# Inventory & Crafting
+- Commands or contextual zones trigger NUI panels (fw_trader, fw_stash, fw_craft).
+- Radial menu (fw_radial, default key E) builds context-specific actions.
 
-Inventory & Crafting
+# Medical
+- Commands: splint, morphine, painkiller (ACL restricted).
+- Bleeding and injuries handled server-side.
 
-Commands or contextual zones trigger NUI panels (fw_trader, fw_stash, fw_craft).
-
-Radial menu (fw_radial, default key E) builds context-specific actions.
-
-Medical
-
-Commands: splint, morphine, painkiller (ACL restricted).
-
-Bleeding and injuries handled server-side.
-
-Admin/Debug
-
-medflush (console) saves all cached health.
-
-wildrules refreshes wildlife rules.
-
-Metrics exposed via FW.Metrics.SetG.
+# Admin/Debug
+- medflush (console) saves all cached health.
+- wildrules refreshes wildlife rules.
+- Metrics exposed via FW.Metrics.SetG.
 
 🛠️ Development
 Tests: spec/ contains Busted unit tests (Lua 5.4).
@@ -91,5 +83,3 @@ Author: SFW Team
 Version: 1.3.1
 
 Contributions should follow existing module structure and Lua coding conventions. Use built-in rate limiting (FW.RL.Check) for networked operations and maintain database contracts for new tables or queries.
-
-คัดลอก
