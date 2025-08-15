@@ -91,6 +91,8 @@ local function fetch_bleeds(sources)
   return map
 end
 
+local tick_players
+
 local function tick_all()
   local players = {}
   for _, sid in ipairs(GetPlayers()) do
@@ -115,7 +117,7 @@ end)
 
 RegisterNetEvent('fw:med:flush', flush_all)
 
-local function tick_players(list)
+tick_players = function(list)
   if not list or #list == 0 then return end
   local bleed = fetch_bleeds(list)
   for _, src in ipairs(list) do
