@@ -12,6 +12,19 @@
 
   const viewApp = $('#view-app');
   const viewId = $('#view-id');
+  const hud = $('#hud');
+  const hudVal = {
+    hp: $('#hud-hp-value'),
+    stam: $('#hud-stamina-value'),
+    hun: $('#hud-hunger-value'),
+    ths: $('#hud-thirst-value'),
+    temp: $('#hud-temperature-value')
+  };
+  const hudEff = $('#hud-effects');
+  const hudAmmoCount = $('#hud-ammo-count');
+  const hudAmmoRes = $('#hud-ammo-reserve');
+  const hudProg = $('#hud-progress');
+  const hudProgBar = $('#hud-progress-bar');
   function setView(name){
     viewApp.classList.add('hidden');
     viewId.classList.add('hidden');
@@ -25,6 +38,53 @@
     if(d.type === 'app:close'){ setView(null); }
     if(d.type === 'id:open'){ setView('id'); }
     if(d.type === 'id:close'){ setView(null); }
+
+    if(d.type === 'vis'){
+      if(d.show){ hud?.classList.remove('hidden'); }
+      else { hud?.classList.add('hidden'); }
+    }
+
+    if(d.type === 'hud:vitals'){
+      const p = d.payload || {};
+      if(hudVal.hp && p.hp !== undefined){ hudVal.hp.textContent = Math.round(p.hp); }
+      if(hudVal.stam && p.stam !== undefined){ hudVal.stam.textContent = Math.round(p.stam); }
+      if(hudVal.hun && p.hun !== undefined){ hudVal.hun.textContent = Math.round(p.hun); }
+      if(hudVal.ths && p.ths !== undefined){ hudVal.ths.textContent = Math.round(p.ths); }
+      if(hudVal.temp && p.temp !== undefined){ hudVal.temp.textContent = Math.round(p.temp); }
+    }
+
+    if(d.type === 'hud:effects'){
+      if(hudEff){
+        hudEff.innerHTML = '';
+        (d.payload || []).forEach(eff => {
+          const span = document.createElement('span');
+          span.className = 'hud-effect';
+          span.title = eff.type || '';
+          const img = document.createElement('img');
+          img.alt = eff.type || '';
+          img.src = `effects/${(eff.type||'').toLowerCase()}.png`;
+          span.appendChild(img);
+          hudEff.appendChild(span);
+        });
+      }
+    }
+
+    if(d.type === 'hud:ammo'){
+      const p = d.payload || {};
+      if(hudAmmoCount && p.count !== undefined){ hudAmmoCount.textContent = p.count; }
+      if(hudAmmoRes && p.reserve !== undefined){ hudAmmoRes.textContent = p.reserve; }
+    }
+
+    if(d.type === 'hud:progress'){
+      const p = d.payload || {};
+      if(typeof p.pct === 'number'){
+        hudProg?.classList.remove('hidden');
+        if(hudProgBar){ hudProgBar.style.width = `${Math.max(0, Math.min(100, p.pct))}%`; }
+      } else {
+        hudProg?.classList.add('hidden');
+        if(hudProgBar){ hudProgBar.style.width = '0%'; }
+      }
+    }
   });
 
   $('#id_form')?.addEventListener('submit', (e)=>{
