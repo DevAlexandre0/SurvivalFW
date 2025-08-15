@@ -3,7 +3,7 @@ _G.GetGameTimer = function()
 	return now
 end
 _G.FW = {}
-dofile("shared/rate_limit.lua")
+dofile("resources/sfw/shared/20_utils.lua")
 
 describe("rate limiter", function()
 	it("blocks rapid calls", function()
