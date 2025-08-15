@@ -119,7 +119,6 @@ local C = {
 }
 
 FW.Weap.Config = C
-return C
 FW = FW or {}
 FW.WildlifeCfg = {
   maxGlobal = 22,
@@ -208,3 +207,4 @@ FW.InteractCfg = {
   -- Relationship filtering (example; can be extended)
   filter = { friendlyOnly=false, hostileOnly=false, ownedOnly=false }
 }
+return C
