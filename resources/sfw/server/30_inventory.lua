@@ -220,11 +220,42 @@ end
 
 exports('SFW_FetchStacks', fetchStacks)
 
-local function moveStack(from_c, from_s, to_c, to_s, qty)
+local function moveStack(src, from_c, from_s, to_c, to_s, qty)
   qty = tonumber(qty) or 0
-  if qty <= 0 then return false, "BAD_QTY" end
+  if qty <= 0 then
+    TriggerClientEvent('fw:inv:error', src, 'bad_qty')
+    return false, 'BAD_QTY'
+  end
   local from = MySQL.single.await("SELECT * FROM stacks WHERE container_id=? AND slot_index=?", { from_c, from_s })
-  if not from or from.quantity < qty then return false, "NO_STOCK" end
+  if not from or from.quantity < qty then
+    TriggerClientEvent('fw:inv:error', src, 'no_stock')
+    return false, 'NO_STOCK'
+  end
+
+  -- Slot constraint
+  if not slotAllows(to_c, to_s, from.item_key) then
+    TriggerClientEvent('fw:inv:error', src, 'slot_forbidden')
+    if FW.Metrics then FW.Metrics.IncL('sfw_inv_error_total', {code='slot_forbidden'}) end
+    return false, 'SLOT_FORBIDDEN'
+  end
+
+  -- Weight limit constraint
+  if from_c ~= to_c then
+    local cinfo = MySQL.single.await("SELECT weight_limit FROM containers WHERE container_id=?", { to_c }) or {}
+    local limit = tonumber(cinfo.weight_limit or 0)
+    if limit > 0 then
+      local row = MySQL.single.await([[SELECT COALESCE(SUM(CASE WHEN s.weight_cached>0 THEN s.weight_cached ELSE s.quantity*COALESCE(i.base_weight,0) END),0) AS w FROM stacks s LEFT JOIN items i ON i.item_key=s.item_key WHERE s.container_id=?]], { to_c })
+      local cur = tonumber(row and row.w or 0)
+      local def = MySQL.single.await("SELECT base_weight FROM items WHERE item_key=?", { from.item_key })
+      local add = qty * (tonumber(def and def.base_weight or 0))
+      if cur + add > limit then
+        TriggerClientEvent('fw:inv:error', src, 'overweight')
+        if FW.Metrics then FW.Metrics.IncL('sfw_inv_error_total', {code='overweight'}) end
+        return false, 'OVERWEIGHT'
+      end
+    end
+  end
+
   local to = MySQL.single.await("SELECT * FROM stacks WHERE container_id=? AND slot_index=?", { to_c, to_s })
   if to then
     if to.item_key ~= from.item_key then return false, "DIFF_ITEM" end
@@ -238,7 +269,7 @@ local function moveStack(from_c, from_s, to_c, to_s, qty)
     if qty == from.quantity then
       MySQL.update.await("UPDATE stacks SET container_id=?, slot_index=?, updated_at=NOW() WHERE stack_id=?", { to_c, to_s, from.stack_id })
     else
-      MySQL.insert.await([[
+      MySQL.insert.await([[ 
         INSERT INTO stacks(container_id, slot_index, item_key, quantity, durability, metadata, state_hash, weight_cached)
         VALUES (?,?,?,?,100,'{}','',0)
       ]], { to_c, to_s, from.item_key, qty })
@@ -253,7 +284,7 @@ RegisterNetEvent('fw:inv:move', function(data)
   local ident = FW.GetIdentifier and FW.GetIdentifier(src)
   if not ident then return end
   if type(data) ~= 'table' then return end
-  moveStack(data.from_container, data.from_slot, data.to_container, data.to_slot, data.qty)
+  moveStack(src, data.from_container, data.from_slot, data.to_container, data.to_slot, data.qty)
 end)
 
 exports('SFW_InvPayloadFor', function(ident)
