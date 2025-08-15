@@ -2,20 +2,8 @@ FW = FW or {}
 FW.DB = FW.DB or {}
 local C = FW.DB.Contract
 local function tx(ident, action, item_key, qty, fromc, froms, toc, tos, stack_id, ctx)
-	local q = "INSERT INTO %s(identifier,action,item_key,qty,from_cont,from_slot,to_cont,to_slot,"
-		.. "stack_id,context) VALUES (?,?,?,?,?,?,?,?,?,?)"
-	return MySQL.insert.await(q:format(C.inv_tx.table), {
-		ident,
-		action,
-		item_key,
-		qty,
-		fromc,
-		froms,
-		toc,
-		tos,
-		stack_id,
-		ctx and json.encode(ctx) or nil,
-	})
+  local q = "INSERT INTO %s(identifier,action,item_key,qty,from_cont,from_slot,to_cont,to_slot," .. "stack_id,context) VALUES (?,?,?,?,?,?,?,?,?,?)"
+	return MySQL.insert.await(q:format(C.inv_tx.table), {ident, action, item_key, qty, fromc, froms, toc, tos, stack_id, ctx and json.encode(ctx) or nil, })
 end
 RegisterNetEvent("fw:inv:moveStrict", function(payload)
 	local src = source
