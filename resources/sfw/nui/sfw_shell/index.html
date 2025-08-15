@@ -8,7 +8,39 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="hud" class="panel">HUD...</div>
+  <div id="hud" class="panel">
+    <div id="hud-vitals" class="hud-vitals">
+      <div id="hud-hp" class="hud-vital">
+        <span class="hud-label">HP</span>
+        <span class="hud-value" id="hud-hp-value"></span>
+      </div>
+      <div id="hud-stamina" class="hud-vital">
+        <span class="hud-label">Stamina</span>
+        <span class="hud-value" id="hud-stamina-value"></span>
+      </div>
+      <div id="hud-hunger" class="hud-vital">
+        <span class="hud-label">Hunger</span>
+        <span class="hud-value" id="hud-hunger-value"></span>
+      </div>
+      <div id="hud-thirst" class="hud-vital">
+        <span class="hud-label">Thirst</span>
+        <span class="hud-value" id="hud-thirst-value"></span>
+      </div>
+      <div id="hud-temperature" class="hud-vital">
+        <span class="hud-label">Temp</span>
+        <span class="hud-value" id="hud-temperature-value"></span>
+      </div>
+    </div>
+    <div id="hud-effects" class="hud-effects"></div>
+    <div id="hud-ammo" class="hud-ammo">
+      <span id="hud-ammo-count" class="ammo-count"></span>
+      <span class="ammo-sep">/</span>
+      <span id="hud-ammo-reserve" class="ammo-reserve"></span>
+    </div>
+    <div id="hud-progress" class="hud-progress">
+      <div id="hud-progress-bar" class="hud-progress-bar"></div>
+    </div>
+  </div>
 
   <!-- Identity form -->
   <div id="view-id" class="overlay hidden">
