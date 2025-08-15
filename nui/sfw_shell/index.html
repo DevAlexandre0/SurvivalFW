@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SFW Shell</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="hud" class="panel">HUD...</div>
+
+  <!-- Appearance (hair only, clothing locked) -->
+  <div id="view-app" class="overlay hidden">
+    <div class="card">
+      <h2>Appearance — Hair</h2>
+      <p style="margin-top:-6px;color:#9f9;">Clothing is locked to prisoner uniform. Customize hair below.</p>
+      <div class="grid">
+        <label>Hair drawable: <input id="ap_hair" type="number" min="0" max="80" value="0"></label>
+        <label>Color 1: <input id="ap_c1" type="number" min="0" max="63" value="0"></label>
+        <label>Color 2: <input id="ap_c2" type="number" min="0" max="63" value="0"></label>
+      </div>
+      <div class="actions">
+        <button id="ap_apply">Apply</button>
+        <button id="ap_done">Save & Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
